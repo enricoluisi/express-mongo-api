@@ -1,16 +1,9 @@
 import express from "express";
+import connectToDatabase from "./src/config/dbConfig.js";
 
-// Array of posts with descriptions and images
-// Defining an array of posts, each with an id, description, and an image URL
-const posts = [
-    { id: 1, description: "A test photo", image: "https://placecats.com/millie/300/150" },
-    { id: 2, description: "Cat doing yoga", image: "https://placekitten.com/400/300" },
-    { id: 3, description: "Sleeping kitten", image: "https://placekitten.com/350/250" },
-    { id: 4, description: "Curious cat looking through the window", image: "https://placekitten.com/450/350" },
-    { id: 5, description: "Kitten playing with a ball of yarn",  image: "https://placekitten.com/500/400" },
-    { id: 6, description: "Black cat in the garden", image: "https://placekitten.com/550/300" },
-    { id: 7, description: "Kitten with a funny hat", image: "https://placekitten.com/300/300" }
-];
+// Establishing the database connection using the function from dbConfig.js
+// The connection string is retrieved from the environment variable `STRING_CONNECTION`
+const connection = await connectToDatabase(process.env.STRING_CONNECTION)
 
 // Create an instance of the express app
 // Initialize an Express application
@@ -26,23 +19,17 @@ app.listen(3000, () => {
     console.log("Server listening...");
 });
 
+async function getAllPosts() {
+    // Connect to the "backend-db" database and access the "posts" collection
+    const db = connection.db("backend-db")
+    const collection = db.collection("posts")
+    // Retrieve all documents from the collection as an array
+    return collection.find().toArray()
+}
+
 // Define a GET route to return all the posts in JSON format
 // When the client requests the /posts endpoint, return the list of all posts
-app.get("/posts", (req, res) => {
-    res.status(200).json(posts);
-});
-
-// Function to search posts by ID
-// Takes an ID and returns the index of the post with the matching ID
-function searchPostsbyID(id) {
-    return posts.findIndex((post) => {
-        return post.id === Number(id)
-    })
-};
-
-// Define a GET route to return a single post by its ID
-// When the client requests the /posts/:id endpoint, return the post with the given ID
-app.get("/posts/:id",(req, res) => {
-    const index = searchPostsbyID(req.params.id) // Use the search function to find the post index
-    res.status(200).json(posts[index]); // Return the post as JSON
+app.get("/posts", async (req, res) => {
+    const posts = await getAllPosts() // Fetch all posts from the database
+    res.status(200).json(posts); // Return the posts as a JSON response
 });
