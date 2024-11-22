@@ -1,5 +1,7 @@
+// Importing the 'fs' module for file system operations (used for renaming the uploaded image file)
 import fs from "fs";
-import { getAllPosts, createPost } from "../models/postsModel.js";
+// Importing model functions to interact with the posts data in the database
+import { getAllPosts, createPost, updatePost } from "../models/postsModel.js";
 
 // The 'listPosts' function handles the logic for fetching and returning posts
 // It is responsible for responding to the GET request on the '/posts' route
@@ -57,5 +59,30 @@ export async function uploadImage(req, res) {
 
         // Return a 500 Internal Server Error response with an error message in JSON format
         res.status(500).json({ "Error": "Request failed" });
+    }
+}
+
+// The 'updateNewPost' function handles the logic for updating an existing post
+// It responds to the PUT request on the '/upload/:id' route
+export async function updateNewPost(req, res) {
+    const id = req.params.id;  // Extracting the post ID from the route parameters
+    const urlImage = `http://localhost:3000/${id}.png`;  // Creating the URL for the updated image
+    const post = {
+        imgUrl: urlImage,  // The new image URL to associate with the post
+        description: req.body.description,  // The updated description from the request body
+        alt: req.body.alt  // The updated alt text for the image
+    }
+    try {
+        // Call the 'updatePost' function from the model to update the post in the database
+        const createdPost = await updatePost(id, post);
+        
+        // Return the updated post as a JSON response with a 200 OK status
+        res.status(200).json(createdPost);
+    } catch(error) {
+        // Log any errors to the console for debugging purposes
+        console.error(error.message);
+        
+        // Return a 500 Internal Server Error response with an error message in JSON format
+        res.status(500).json({"Error":"Request failed"});
     }
 }

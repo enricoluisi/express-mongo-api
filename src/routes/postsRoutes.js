@@ -1,6 +1,9 @@
+// Importing the express module to create the routes
 import express from "express";
+// Importing the multer module to handle file uploads
 import multer from "multer";
-import { listPosts, postNewPost, uploadImage } from "../controllers/postsController.js";
+// Importing controller functions for handling the logic of the routes
+import { listPosts, postNewPost, uploadImage, updateNewPost } from "../controllers/postsController.js";
 
 // Configuring multer for file storage
 // Define the storage engine for handling uploaded files
@@ -36,6 +39,11 @@ const routes = (app) => {
     // Define a POST route for uploading an image
     // When the client sends an image to the /upload endpoint, the image is uploaded and processed
     app.post("/upload", upload.single("image"), uploadImage); // Calls the uploadImage function from the controller and uses multer to handle the upload
+
+    // Define a PUT route to update an existing post (new route for handling image upload with post update)
+    // When the client sends a PUT request to the /upload/:id endpoint, the post is updated with the uploaded image
+    app.put("/upload/:id", updateNewPost);
 }
 
-export default routes;  // Export the routes function for use in other parts of the application
+// Exporting the routes function for use in other parts of the application
+export default routes;
