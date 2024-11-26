@@ -4,6 +4,14 @@ import express from "express";
 import multer from "multer";
 // Importing controller functions for handling the logic of the routes
 import { listPosts, postNewPost, uploadImage, updateNewPost } from "../controllers/postsController.js";
+// Importing the CORS module to enable cross-origin requests
+import cors from "cors";
+
+// Defining the CORS options to allow requests from the specified origin
+const corsOptions = {
+    origin: "http://localhost:8000", // Allow requests from this origin
+    optionsSuccessStatus: 200       // Respond with a 200 status for successful preflight requests
+};
 
 // Configuring multer for file storage
 // Define the storage engine for handling uploaded files
@@ -27,6 +35,8 @@ const routes = (app) => {
     // Middleware to parse JSON data
     // Use Express's built-in JSON parsing middleware to handle incoming JSON requests
     app.use(express.json());
+    // Middleware to handle cross-origin requests
+    app.use(cors(corsOptions));
 
     // Define a GET route to return all the posts in JSON format
     // When the client requests the /posts endpoint, return the list of all posts
@@ -40,9 +50,9 @@ const routes = (app) => {
     // When the client sends an image to the /upload endpoint, the image is uploaded and processed
     app.post("/upload", upload.single("image"), uploadImage); // Calls the uploadImage function from the controller and uses multer to handle the upload
 
-    // Define a PUT route to update an existing post (new route for handling image upload with post update)
-    // When the client sends a PUT request to the /upload/:id endpoint, the post is updated with the uploaded image
-    app.put("/upload/:id", updateNewPost);
+    // Define a PUT route to update an existing post
+    // When the client sends a PUT request to the /upload/:id endpoint, the post is updated with the uploaded image and its details
+    app.put("/upload/:id", updateNewPost); // Calls the updateNewPost function from the controller to handle the request
 }
 
 // Exporting the routes function for use in other parts of the application
